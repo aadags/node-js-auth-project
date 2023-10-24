@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id                  String   @default(cuid()) @id
+  name                String
+  email               String   
+  mobile_number       String?    
+  rc_number           String?    
+  address             String?    
+  users               User[]
+  patients            Patient[]
+  roles               Role[]
+  permissions               Permission[]
+  modules             Module[]
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt 
+  @@map(name: "organizations")
+}
+
+model Module {
+  id                  String   @default(cuid()) @id
+  name                String
+  identifier          String
+  organizations       Organization[]
+  permissions         Permission[]
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt 
+  deleted             Boolean @default(false)
+  @@map(name: "modules")
+}
+
+model User {
+  id                  String   @default(cuid()) @id
+  first_name          String
+  middle_name         String?
+  last_name           String
+  email               String   @unique
+  password            String   
+  mobile_number       String?    
+  role                Role         @relation(fields: [role_id], references: [id])
+  role_id             String
+  organization        Organization         @relation(fields: [organization_id], references: [id])
+  organization_id           String
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt 
+  deleted             Boolean @default(false)
+  @@map(name: "users")
+}
+
+model Role {
+  id                  String   @default(cuid()) @id
+  name                String
+  identifier          String
+  parent_id           String?
+  permissions         Permission[]
+  users               User[]
+  organization        Organization         @relation(fields: [organization_id], references: [id])
+  organization_id           String
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt 
+  deleted             Boolean @default(false)
+  @@map(name: "roles")
+}
+
+model Permission {
+  id                  String   @default(cuid()) @id
+  name                String
+  identifier          String
+  module              Module         @relation(fields: [module_id], references: [id])
+  module_id           String
+  roles               Role[]
+  organizations       Organization[]
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt 
+  @@map(name: "permissions")
+
+}
+
+model Patient {
+  id                  String   @default(cuid()) @id
+  first_name          String
+  middle_name         String?
+  last_name           String
+  email               String?
+  mobile_number       String     
+  organization        Organization         @relation(fields: [organization_id], references: [id])
+  organization_id           String
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt 
+  @@map(name: "patients")
+}
