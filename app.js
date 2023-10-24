@@ -19,15 +19,7 @@ app.use(cors({
 
 //routes
 
-app.get("/", (request, response) => {
-   const status = {
-      "status": "Running"
-   };
-   
-   response.send(status);
-});
-
-app.get("/status", (request, response) => {
+app.get("/api/health", (request, response) => {
    const status = {
       "status": "Running"
    };
@@ -36,5 +28,5 @@ app.get("/status", (request, response) => {
 });
 
 
-//flights
-app.use("/user", UserRoute);
+//user route
+app.use("/api/user", UserRoute);
