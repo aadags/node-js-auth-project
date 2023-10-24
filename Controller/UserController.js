@@ -22,6 +22,7 @@ module.exports = {
             status: true,
             data: allUsers,
             meta: { page: currentPage },
+            lastPage: (allUsers.length() < listPerPage)? true : false
         });
       
     },
