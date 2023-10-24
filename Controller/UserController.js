@@ -21,8 +21,7 @@ module.exports = {
         return res.status(200).json({
             status: true,
             data: allUsers,
-            meta: { page: currentPage },
-            lastPage: (allUsers.length() < listPerPage)? true : false
+            meta: { page: currentPage, lastPage: (allUsers.length < listPerPage)? true : false },
         });
       
     },
