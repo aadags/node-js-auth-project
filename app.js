@@ -5,8 +5,9 @@ const passport = require('passport');
 const passportJWT = require("passport-jwt");
 const JWTStrategy   = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
-const UserRoute = require('./Route/UserRoute');
 const redisIo = require('./redis/redis');
+const UserRoute = require('./Route/UserRoute');
+const AuthRoute = require('./Route/AuthRoute');
 
 
 const PORT = process.env.PORT || 3000;
@@ -28,13 +29,8 @@ app.use(cors({
 var opts = {}
 opts.jwtFromRequest = ExtractJWT.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = process.env.JWT_SECRET;
-opts.issuer = 'passport.eclathealthcare.com';
-opts.audience = 'eclinic.eclathealthcare.com';
 passport.use(new JWTStrategy(opts, function(jwt_payload, done) {
-   //you can do second level check here
-   let user = redisIo.hGetAll('user:'+jwt_payload.id);
-   return done(null, user);
-    
+   return done(null, jwt_payload);
 }));
 
 
@@ -49,4 +45,5 @@ app.get("/api/health", (request, response) => {
 
 
 //routes
+app.use("/api/auth", AuthRoute);
 app.use("/api/user", passport.authenticate('jwt', {session: false}), UserRoute);

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const prisma = require('../prisma/db');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+var md5 = require('md5');
 const redisIo = require('../redis/redis');
 
 module.exports = {
@@ -21,31 +21,41 @@ module.exports = {
             where: {
               email: email,
             },
-            select: {
-                id: true,
-                first_name: true,
-                last_name: true,
+            include: {
+                role: {
+                    select: {
+                        name: true,
+                        identifier: true,
+                        permissions: {
+                            select: {
+                                name: true,
+                                identifier: true,
+                            },
+                        }
+                    },
+                },
             },
         });
 
         if (!user) {
-            return res.status(403).json({
+            return res.status(401).json({
                 status: false,
                 message: "Invalid login credentials.",
             });
         }
 
-        const validPassword = await bcrypt.compare(password, user.password);
+        const validPassword = md5(password) == user.password;
         if (!validPassword) {
-            return res.status(403).json({
+            return res.status(401).json({
                 status: false,
                 message: "Invalid login credentials.",
             });
         }
-          
 
-        const token = jwt.sign(req.user, process.env.JWT_SECRET, { expiresIn: '30m' });
-        redisIo.hSet('user:'+user.id, user);
+        delete user.password;
+        await redisIo.set('user:role:'+user.id, JSON.stringify(user.role));
+
+        const token = jwt.sign({id: user.id, first_name: user.first_name, last_name: user.last_name}, process.env.JWT_SECRET, { expiresIn: '30m' });
        
         return res.status(200).json({
             status: true,
