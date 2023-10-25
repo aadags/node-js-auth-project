@@ -6,8 +6,6 @@ module.exports = {
 
     listUsers: async (req, res) => {
 
-        // const payload = req.body;
-
         const currentPage = req.query.page || 1;
         const listPerPage = parseInt(req.query.count) || 10;
         const offset = (currentPage - 1) * listPerPage;
@@ -24,5 +22,11 @@ module.exports = {
             meta: { page: currentPage, lastPage: (allUsers.length < listPerPage)? true : false },
         });
       
+    },
+
+    createUser: async (req, res) => {
+
+        const payload = req.body;
+
     },
 }
