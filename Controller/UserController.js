@@ -1,6 +1,6 @@
 require('dotenv').config();
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require('../prisma/db');
+// const bcrypt = require('bcrypt');
 
 module.exports = {
 
@@ -27,6 +27,8 @@ module.exports = {
     createUser: async (req, res) => {
 
         const payload = req.body;
+
+        // user.password = bcrypt.hashSync(user.password, 12);    -- for creating user password
 
     },
 }
