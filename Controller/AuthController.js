@@ -17,6 +17,20 @@ module.exports = {
             });
         }
 
+        const userP = await prisma.user.findUnique({
+            where: {
+              email: email,
+            }
+        });
+
+        const validPassword = md5(password) == userP.password;
+        if (!validPassword) {
+            return res.status(401).json({
+                status: false,
+                message: "Invalid login credentials.",
+            });
+        }
+
         const user = await prisma.user.findUnique({
             where: {
               email: email,
@@ -38,14 +52,6 @@ module.exports = {
         });
 
         if (!user) {
-            return res.status(401).json({
-                status: false,
-                message: "Invalid login credentials.",
-            });
-        }
-
-        const validPassword = md5(password) == user.password;
-        if (!validPassword) {
             return res.status(401).json({
                 status: false,
                 message: "Invalid login credentials.",
